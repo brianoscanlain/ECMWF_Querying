@@ -10,7 +10,8 @@ import xarray
 import pandas as pd
 import numpy as np
 
-gribFile = 'oceanWave_cop_climate_2018_Nov_01_to_02.grib'
+#gribFile = 'oceanWave_cop_climate_2018_Nov_01_to_02.grib'
+gribFile = 'oceanWave_cop_climate_2018_Oct_02_to_09.grib'
 LatLonTimeFile = 'ShipTrack.csv'
 
 
