@@ -4,14 +4,13 @@
 #
 #Brian Scanlon, Galway, 2019
 
-import glob
 import cfgrib
-import xarray
 import pandas as pd
 import numpy as np
+ncFile = 'oceanWave_cop_climate_2018_Nov_01_to_02.nc'
 
 #gribFile = 'oceanWave_cop_climate_2018_Nov_01_to_02.grib'
-gribFile = 'oceanWave_cop_climate_2018_Oct_02_to_09.grib'
+gribFile = '20181002_20181009.grib'
 LatLonTimeFile = 'ShipTrack.csv'
 
 
@@ -34,6 +33,7 @@ def QueryGrib(gribFile,LatLonTimeFile,ignoreList=['number','time','step'],Distan
 		gribVariables = ds.variables.keys()
 		FRM = {}
 		#
+		dimsLogged=False
 		for key in gribVariables:   #load the Grib Variables into memory one by one!
 			if key not in ignoreList:  #Leaev open the possibility for a ignoreList to ignore specific keys
 				try:
@@ -48,6 +48,10 @@ def QueryGrib(gribFile,LatLonTimeFile,ignoreList=['number','time','step'],Distan
 						iTime,dTime = find_nearest(float(Queries.time[i]),Gtime)
 						#
 						NearingDist = np.sqrt(dLat*dLat + dLon*dLon)
+						#
+						if not dimsLogged:
+							FRM = MisterAssign(FRM,'DistFrmGrdPnt',NearingDist)	
+							FRM = MisterAssign(FRM,'TimeOffset',dTime)	
 						if NearingDist <= DistanceLim and dTime <=TimeDelayLim:
 							try:
 								val = keyData[iTime,iLat,iLon]
@@ -59,6 +63,7 @@ def QueryGrib(gribFile,LatLonTimeFile,ignoreList=['number','time','step'],Distan
 							val = np.nan
 						#Assign value
 						FRM = MisterAssign(FRM,key,val)
+					dimsLogged=True
 		return FRM
 
 
@@ -78,8 +83,8 @@ def find_nearest(array, value):
 	idx = (distance).argmin()
 	shortestDistance = min(distance)
 	return (idx,shortestDistance)
-
+'''
 def npDT_to_timestampList(npDT64):
 	OUT=[]
 	for dt in npDT64:
-		OUT.append()
+		OUT.append()'''
