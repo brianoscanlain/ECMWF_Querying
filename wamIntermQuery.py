@@ -14,20 +14,20 @@ gribFile = '20181002_20181009.grib'
 LatLonTimeFile = 'ShipTrack.csv'
 
 
-def QueryGrib(gribFile,LatLonTimeFile,filterKeys={'dataType':'an','numberOfPoints':65160},ignoreList=['number','time','step'],DistanceLim=1,TimeDelayLim=6):
+def QueryGrib(gribFile,LatLonTimeFile,filterKeys={'dataType':'an','numberOfPoints':65160},ignoreList=['number','time','step'],DistanceLim=1,TimeDelayLim=6,QueryColumns=['time','lat','lon']):
 	try:
 		#Load GRIB:
 		#ds = xarray.open_dataset(gribFile, engine='cfgrib')
 		ds = cfgrib.open_file(gribFile,filter_by_keys=filterKeys)
 		#Load Query file (comma separated; time, lon, lat):
-		Queries = pd.read_csv(LatLonTimeFile,names=['time','lon','lat'])
+		Queries = pd.read_csv(LatLonTimeFile,names=QueryColumns)
 	except:
 		print('Error loading GRIB or Query files, ')
 		return -1
 	else:
 		#Extract frame data:
 		Glat = list(ds.variables['latitude'].data)   #list(ds.latitude.data)
-		Glon = list(ds.variables['longitude'].data)    #list(ds.longitude.data)
+		Glon = list(ds.variables['longitude'].data-180)    #list(ds.longitude.data)
 		Gtime = list(ds.variables['time'].data)    # list((ds.time.data).astype(float))/1e9 #we convert implicitly from np.datetime64 to timestamp!
 		#Extract list of variables:
 		gribVariables = ds.variables.keys()
