@@ -14,11 +14,11 @@ gribFile = '20181002_20181009.grib'
 LatLonTimeFile = 'ShipTrack.csv'
 
 
-def QueryGrib(gribFile,LatLonTimeFile,ignoreList=['number','time','step'],DistanceLim=1,TimeDelayLim=6):
+def QueryGrib(gribFile,LatLonTimeFile,filterKeys={'dataType':'an','numberOfPoints':65160},ignoreList=['number','time','step'],DistanceLim=1,TimeDelayLim=6):
 	try:
 		#Load GRIB:
 		#ds = xarray.open_dataset(gribFile, engine='cfgrib')
-		ds = cfgrib.open_file(gribFile)
+		ds = cfgrib.open_file(gribFile,filter_by_keys=filterKeys)
 		#Load Query file (comma separated; time, lon, lat):
 		Queries = pd.read_csv(LatLonTimeFile,names=['time','lon','lat'])
 	except:
@@ -54,7 +54,12 @@ def QueryGrib(gribFile,LatLonTimeFile,ignoreList=['number','time','step'],Distan
 							FRM = MisterAssign(FRM,'TimeOffset',dTime)	
 						if NearingDist <= DistanceLim and dTime <=TimeDelayLim:
 							try:
-								val = keyData[iTime,iLat,iLon]
+								if len(ds.dimensions.keys())==4:
+									bufr = keyData[:,iTime,iLat,iLon]
+									bufr[bufr==keyData.missing_value]=np.nan #remove any missing values!
+									val = bufr.mean()	
+								else:
+									val = keyData[iTime,iLat,iLon]
 								if val == 9999:
 									val= np.nan
 							except:
