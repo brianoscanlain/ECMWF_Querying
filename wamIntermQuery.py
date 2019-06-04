@@ -68,7 +68,11 @@ def QueryGrib(gribFile,LatLonTimeFile,\
 							try:
 								if len(ds.dimensions.keys())==4: #we are dealing with a forecast array!
 									bufr = keyData[forecastInd,iTime,iLat,iLon]
-									bufr[bufr==keyData.missing_value]=np.nan #remove any missing values!
+									if type(bufr)=='numpy.ndarray':
+										bufr[bufr==keyData.missing_value]=np.nan #remove any missing values!
+									elif type(bufr)=='numpy.float32':										
+										if bufr ==keyData.missing_value:
+											bufr = np.nan
 									val = bufr.mean()	
 								else:
 									val = keyData[iTime,iLat,iLon]
